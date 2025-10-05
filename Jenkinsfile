@@ -21,7 +21,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image('python:3.11-slim').inside {
+                    docker.image('python:3.11-slim').inside('-u root:root') {
                         sh '''
                             cd app
                             pip install -r requirements.txt
