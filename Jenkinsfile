@@ -64,19 +64,21 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+					    // Create deployment bundle
                         sh """
-                            aws deploy create-deployment \
-                              --application-name ${APP_NAME} \
+                            zip -r app-${BUILD_NUMBER}.zip appspec.yml scripts/
+							aws s3 mb s3://jenkins-cicd-deployments-${AWS_ACCOUNT_ID} || true
+                            aws s3 cp app-${BUILD_NUMBER}.zip s3://jenkins-cicd-deployments-${AWS_ACCOUNT_ID}/
+						"""
+						
+						// Create deployment
+						sh """
+							aws deploy create-deployment \
+							  --application-name ${APP_NAME} \
                               --deployment-group-name ${DEPLOYMENT_GROUP} \
                               --deployment-config-name CodeDeployDefault.AllAtOnce \
                               --description "Deployment from Jenkins Build ${BUILD_NUMBER}" \
-                              --s3-location bucket=aws-codedeploy-${AWS_REGION},bundleType=zip,key=app-${BUILD_NUMBER}.zip || \
-                            aws deploy create-deployment \
-                              --application-name ${APP_NAME} \
-                              --deployment-group-name ${DEPLOYMENT_GROUP} \
-                              --deployment-config-name CodeDeployDefault.AllAtOnce \
-                              --description "Deployment from Jenkins Build ${BUILD_NUMBER}" \
-                              --github-location repository=\${GIT_URL#https://github.com/},commitId=\${GIT_COMMIT}
+                              --s3-location bucket=jenkins-cicd-deployments-${AWS_ACCOUNT_ID},bundleType=zip,key=app-${BUILD_NUMBER}.zip
                         """
                     }
                 }
