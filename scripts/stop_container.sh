@@ -1,10 +1,9 @@
 #!/bin/bash
-set -e
 
 echo "Stopping existing container..."
 
-# Stop and remove existing container
-docker stop flask-app || true
-docker rm flask-app || true
+# Stop and remove existing container (ignore errors if it doesn't exist)
+docker stop flask-app 2>/dev/null || echo "Container not running"
+docker rm flask-app 2>/dev/null || echo "Container not found"
 
-echo "Container stopped successfully"
+echo "Container cleanup completed"
