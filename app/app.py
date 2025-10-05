@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return f"Hello from Jenkins CI/CD! Version: {os.getenv('APP_VERSION', '1.0')}"
+    return f"Hello from Jenkins CI/CD! Version: 2.0"  # Changed from 1.0 to 2.0
 
 @app.route('/health')
 def health():
